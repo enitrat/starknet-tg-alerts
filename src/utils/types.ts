@@ -14,3 +14,6 @@ export type ParsedTransaction = CallWithCalldata & {
   hash: string;
 };
 
+export type QuotePriceData = {
+  data: { currency: string; rates: { [key: string]: string } };
+};
