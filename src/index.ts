@@ -200,6 +200,6 @@ async function main() {
   await inspectBlockBuys(latestBlock, BigInt(TOKEN_ADDRESS));
 }
 
-cron.schedule("*/1 * * * * *", main);
+cron.schedule("*/10 * * * * *", main);
 logger.info("Telegram bot started");
 main();
