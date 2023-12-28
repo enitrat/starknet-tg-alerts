@@ -1,6 +1,6 @@
 import { BlockTag, RpcProvider } from "starknet";
 import { CallWithCalldata, ParsedTransaction } from "./utils/types";
-import { toEther } from "./utils/utils";
+import { getETHPriceInUSD, toEther } from "./utils/utils";
 import { format, transports } from "winston";
 import { ContractToAddresses, SELECTORS } from "./utils/constants";
 import { logger } from "./utils/utils";
@@ -28,10 +28,9 @@ const rpcProvider = new RpcProvider({
 
 const TOKEN_ADDRESS = process.env.TOKEN_ADDRESS!;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID!;
-const TOKEN_NAME = process.env.MY_TOKEN!;
+const TOKEN_NAME = process.env.TOKEN_NAME!;
 const TOKEN_POOL = process.env.TOKEN_POOL!;
 const TOKEN_FROM = process.env.TOKEN_FROM!;
-const TOKEN_FROM_PRICE = process.env.TOKEN_FROM_PRICE!;
 const TOTAL_SUPPLY = process.env.TOTAL_SUPPLY!;
 const swapLink = `<a href="https://app.avnu.fi/en?tokenFrom=${TOKEN_FROM}&tokenTo=${TOKEN_ADDRESS}&amount=0.001">Swap</a>`;
 const poolLink = `<a href="https://www.geckoterminal.com/en/starknet-alpha/pools/${TOKEN_POOL}"> Chart </a>`;
@@ -110,7 +109,7 @@ function getAvnuBuys(call: CallWithCalldata, txHash: string): Swap | undefined {
       parseFloat(BigInt(amountFrom).toString()) /
       parseFloat(BigInt(amountTo).toString());
     let marketCap = Math.floor(
-      parseInt(TOTAL_SUPPLY) * 10 ** -18 * price * parseInt(TOKEN_FROM_PRICE)
+      parseInt(TOTAL_SUPPLY) * 10 ** -18 * price * ethPrice
     );
 
     if (
@@ -147,7 +146,7 @@ function getJediswapBuys(
       parseFloat(BigInt(amountFrom).toString()) /
       parseFloat(BigInt(amountTo).toString());
     let marketCap = Math.floor(
-      parseInt(TOTAL_SUPPLY) * 10 ** -18 * price * parseInt(TOKEN_FROM_PRICE)
+      parseInt(TOTAL_SUPPLY) * 10 ** -18 * price * ethPrice
     );
 
     if (
@@ -185,6 +184,8 @@ function filterBuyCoin(parsedTx: ParsedTransaction, token: BigInt) {
 }
 
 let processedBlock = 0;
+let ethPrice = 0;
+
 async function main() {
   let latestBlock = (await rpcProvider.getBlockWithTxs(
     BlockTag.latest
@@ -195,9 +196,10 @@ async function main() {
   } else {
     processedBlock = newprocessedBlock;
   }
+  ethPrice = await getETHPriceInUSD();
   await inspectBlockBuys(latestBlock, BigInt(TOKEN_ADDRESS));
 }
 
-cron.schedule("*/30 * * * * *", main);
+cron.schedule("*/10 * * * * *", main);
 logger.info("Telegram bot started");
 main();

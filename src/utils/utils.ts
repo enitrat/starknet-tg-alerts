@@ -1,4 +1,4 @@
-import { Network } from "./types";
+import { Network, QuotePriceData } from "./types";
 import { createLogger, format, transports } from "winston";
 
 export function strip_leading_zeros(hex: string) {
@@ -33,3 +33,15 @@ export const logger = createLogger({
     new transports.File({ filename: "combined.log" }),
   ],
 });
+
+export async function getETHPriceInUSD(): Promise<number> {
+  try {
+    const response = await fetch(
+      "https://api.coinbase.com/v2/exchange-rates?currency=ETH"
+    );
+    const responseData = (await response.json()) as QuotePriceData;
+    return parseInt(responseData.data.rates.USD);
+  } catch {
+    return NaN;
+  }
+}
