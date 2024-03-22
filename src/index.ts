@@ -50,7 +50,7 @@ export async function inspectBlockBuys(block: Block, token: bigint) {
       });
       const dexString =
         tx.dex === "Avnu.fi"
-          ? `<a href="https://app.avnu.fi/en?tokenFrom=0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7&tokenTo=0x06cead2351c6fc93ccf3a43d4ddb645d0c851c1827b0332e3ac0c5c89d6560db&amount=0.001">Avnu.fi</a>`
+          ? swapLink
           : `<a href="https://app.jediswap.xyz/#/swap"> Jediswap </a>`;
       const msgString = `
 <b>${TOKEN_NAME} Buy!</b>
